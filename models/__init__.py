@@ -1,1 +1,1 @@
-from .Issue import Issue
+from .Issue import IssueModel

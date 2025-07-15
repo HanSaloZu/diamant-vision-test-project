@@ -23,7 +23,7 @@ class CategoryEnum(str, Enum):
     other = "другое"
 
 
-class Issue(Base):
+class IssueModel(Base):
     __tablename__ = "issues"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
