@@ -16,5 +16,11 @@ class SentimentAnalysisAPIConfig(BaseSettings):
     API_KEY: str = os.environ.get("SENTIMENT_ANALYSIS_API_KEY")
 
 
+class IPAPIConfig(BaseSettings):
+    URL: str = "http://ip-api.com/json"
+    FIELDS: int = 1105937
+
+
 db_config = DatabaseConfig()
 sentiment_analysis_api_config = SentimentAnalysisAPIConfig()
+ip_api_config = IPAPIConfig()
