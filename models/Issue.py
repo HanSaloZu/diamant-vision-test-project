@@ -38,3 +38,4 @@ class IssueModel(Base):
     category: Mapped[CategoryEnum] = mapped_column(
         default=CategoryEnum.other, nullable=False
     )
+    geo: Mapped[str] = mapped_column(nullable=True)
