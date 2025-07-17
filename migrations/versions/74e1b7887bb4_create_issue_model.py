@@ -37,7 +37,13 @@ def upgrade() -> None:
         ),
         sa.Column(
             "category",
-            sa.Enum("technical", "payment", "other", name="categoryenum"),
+            sa.Enum(
+                "техническая",
+                "оплата",
+                "другое",
+                name="categoryenum",
+                native_enum=False,
+            ),
             nullable=False,
         ),
         sa.PrimaryKeyConstraint("id"),
