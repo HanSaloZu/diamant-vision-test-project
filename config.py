@@ -21,6 +21,12 @@ class IPAPIConfig(BaseSettings):
     FIELDS: int = 1105937
 
 
+class ChatGPTAPIConfig(BaseSettings):
+    URL: str = "https://api.openai.com/v1/chat/completions"
+    API_KEY: str = os.environ.get("CHAT_GPT_API_KEY")
+
+
 db_config = DatabaseConfig()
 sentiment_analysis_api_config = SentimentAnalysisAPIConfig()
 ip_api_config = IPAPIConfig()
+chat_gpt_config = ChatGPTAPIConfig()
