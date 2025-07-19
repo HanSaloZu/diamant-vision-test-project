@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+import datetime
 
 
 class NewIssueSchema(BaseModel):
@@ -11,3 +12,8 @@ class IssueSchema(BaseModel):
     sentiment: str
     category: str
     geo: str | None
+
+
+class FullIssueSchema(IssueSchema):
+    text: str
+    timestamp: datetime.datetime
