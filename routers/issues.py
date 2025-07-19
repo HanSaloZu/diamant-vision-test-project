@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Request, BackgroundTasks
-from schemas.Issue import NewIssueSchema, IssueSchema
-from models.Issue import IssueModel, CategoryEnum
+from fastapi import APIRouter, Depends, Request, BackgroundTasks, Query
+from schemas.Issue import NewIssueSchema, IssueSchema, FullIssueSchema
+from models.Issue import IssueModel, CategoryEnum, StatusEnum
 from database import SessionDep, create_new_session
 import aiohttp
+import datetime
 from sqlalchemy import select
 from http_client import http_client
 from config import sentiment_analysis_api_config, ip_api_config, chat_gpt_config
@@ -89,3 +90,21 @@ async def create_issue(
     background_tasks.add_task(update_issue_category, new_issue.id)
 
     return new_issue
+
+
+@router.get("/issues")
+async def get_issues(
+    session: SessionDep,
+    status: str | None = Query(None, description="Фильтр по статусу (open/closed)"),
+) -> list[FullIssueSchema]:
+    now = datetime.datetime.now(datetime.timezone.utc)
+    filters = []
+    if status is not None:
+        filters.append(IssueModel.status == status)
+    filters.append(IssueModel.timestamp >= now - datetime.timedelta(hours=1))
+    stmt = select(IssueModel).where(*filters)
+
+    result = await session.execute(stmt)
+    issues = result.scalars().all()
+
+    return issues
