@@ -1,4 +1,12 @@
-from fastapi import APIRouter, Depends, Request, BackgroundTasks, Query
+from fastapi import (
+    APIRouter,
+    Depends,
+    Request,
+    BackgroundTasks,
+    Query,
+    Path,
+    HTTPException,
+)
 from schemas.Issue import NewIssueSchema, IssueSchema, FullIssueSchema
 from models.Issue import IssueModel, CategoryEnum, StatusEnum
 from database import SessionDep, create_new_session
@@ -108,3 +116,24 @@ async def get_issues(
     issues = result.scalars().all()
 
     return issues
+
+
+@router.post("/issues/{issue_id}/close")
+async def close_issue(
+    session: SessionDep,
+    issue_id: int = Path(..., description="ID жалобы"),
+):
+    result = await session.execute(select(IssueModel).where(IssueModel.id == issue_id))
+    issue = result.scalar_one_or_none()
+
+    if not issue:
+        raise HTTPException(status_code=404, detail="Жалоба не найдена")
+
+    issue.status = StatusEnum.closed
+    await session.commit()
+
+    return {
+        "message": "Статус обновлён",
+        "id": issue_id,
+        "new_status": issue.status,
+    }
