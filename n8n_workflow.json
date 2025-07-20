@@ -1,0 +1,384 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        64
+      ],
+      "id": "6039d30a-c388-4514-93e8-baee96d65b87",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "739742151",
+        "text": "=NEW ISSUE\n\nid: {{ $json.id }}\nsentiment: {{ $json.sentiment }}\ncategory: {{ $json.category }}\ngeo: {{ $json.geo }}\ntext: {{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        -32
+      ],
+      "id": "e9c89c9c-40be-4c87-b6b7-b1cd0aecf15a",
+      "name": "Send a text message",
+      "webhookId": "24ab53c2-04ee-4015-b9c5-24f70949b4dc",
+      "credentials": {
+        "telegramApi": {
+          "id": "DoGj2KzVXbEffmX2",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1CxmOZHa_8KmLdo3QgQKQjYEX2F3-1BUZVqSk9ur-cW0",
+          "mode": "list",
+          "cachedResultName": "Issues",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CxmOZHa_8KmLdo3QgQKQjYEX2F3-1BUZVqSk9ur-cW0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Main",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CxmOZHa_8KmLdo3QgQKQjYEX2F3-1BUZVqSk9ur-cW0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sentiment": "={{ $json.sentiment }}",
+            "text": "={{ $json.text }}",
+            "geo": "={{ $json.geo }}",
+            "timestamp": "={{ $json.timestamp }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "sentiment",
+              "displayName": "sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "geo",
+              "displayName": "geo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1360,
+        128
+      ],
+      "id": "7a417a62-5380-448f-b966-7535282aba87",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "IfI3nONQ8LLr04wl",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://010088f258b9.ngrok-free.app/api/v1/issues/{{ $('Loop Over Issues').item.json.id }}/close",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1664,
+        96
+      ],
+      "id": "440cf32b-3299-4db8-94a2-b848b65b7d06",
+      "name": "Close issue"
+    },
+    {
+      "parameters": {
+        "url": "https://010088f258b9.ngrok-free.app/api/v1/issues?status=open",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        272,
+        64
+      ],
+      "id": "b02608fe-14b7-41ac-b9ab-1d32f93519ce",
+      "name": "Get Issues"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        464,
+        64
+      ],
+      "id": "96b6cab1-6707-4c8e-8800-ca0d8d641228",
+      "name": "Loop Over Issues"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2dbb053b-9e6b-47c8-a26f-665de9a82375",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "=техническая",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        80
+      ],
+      "id": "81405bc4-cfb8-4663-81b3-793e230e9452",
+      "name": "If techincal category"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bf0066b9-e48b-4949-92a0-93241494d252",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "=оплата",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        144
+      ],
+      "id": "ced6e2da-0256-4eb2-8467-1cd604c0be95",
+      "name": "If payment category"
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-07-17T22:23:43.257+02:00",
+          "Readable date": "July 17th 2025, 10:23:43 pm",
+          "Readable time": "10:23:43 pm",
+          "Day of week": "Thursday",
+          "Year": "2025",
+          "Month": "July",
+          "Day of month": "17",
+          "Hour": "22",
+          "Minute": "23",
+          "Second": "43",
+          "Timezone": "Europe/Budapest (UTC+02:00)"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Issues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Close issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Close issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Close issue": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Issues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Issues": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Issues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Issues": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If techincal category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If techincal category": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If payment category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If payment category": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Issues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f4f3dd45-d020-42fd-ac3a-5518b8d7d7ea",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e7b39b22745bb201b23ebb04ad66d425dea4c2176ec151440c25890e4cbcf6f2"
+  },
+  "id": "S9c3kiBdgRxK4dHt",
+  "tags": []
+}
